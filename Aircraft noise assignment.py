@@ -5,7 +5,7 @@ import math
 import scipy.integrate as integrate
 
 
-data = loadmat("Flyover_No_23/Flyover_No_23.mat")
+data = loadmat("Flyover_No_23.mat")
 # print(data.keys())
 
 sound_pressure = np.squeeze(data["sound_pressure"])
