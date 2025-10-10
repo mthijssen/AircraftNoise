@@ -66,14 +66,14 @@ plt.show() # Dit plot zowel de grafiek voor opdracht 1 als voor opdracht 4
     ###  Answer to q 5  ###
     #######################
 
-OSPL = np.zeros_like(time_points) # Overall Sound Pressure Level empty array
+OSPL = np.zeros_like(time_points) # Empty array
 p_e0 = 2e-5 # Pa
 
 for i, start in enumerate(time_points):
     end = start + T
     mask = (t >= start) & (t < end)
     integrals[i] = math.sqrt((integrate.trapezoid(sound_pressure[mask]**2, x=t[mask]))/T)
-    OSPL[i] = 10 * math.log10(integrals[i]**2 / p_e0**2) # formula 5.20 from the reader
+    OSPL[i] = 10 * math.log10(integrals[i]**2 / p_e0**2) # formule 5.20
 
 # plt.plot(t, sound_pressure, "orange", label="sound pressure")
 # plt.plot(time_points, integrals, "green", label="effective pressure")
@@ -112,7 +112,7 @@ for i, start in enumerate(time_points):
         chunk = np.pad(chunk, (0, int(nr_samples) - len(chunk)), mode='constant')
 
     # compute PSD using periodogram with 'density' scaling (units Pa^2/Hz)
-    freqs_chunk, Pxx = signal.periodogram(chunk, fs=fs, window='boxcar', nfft=nfft, scaling='density', detrend=False)
+    freqs_chunk, Pxx = signal.periodogram(chunk, fs=fs, window='hann', nfft=nfft, scaling='density', detrend=False)
 
     PSL = 10.0 * np.log10(Pxx / (p_e0 ** 2) + 1e-30)  # Pxx (PSD) converteren naar PSL, epsilon = 1e-30
 
@@ -130,6 +130,32 @@ cbar = plt.colorbar(pcm)
 cbar.set_label('PSL (dB re p_ref^2)')
 plt.title('Figure: Power Spectrum Level (time x frequency)')
 plt.yscale('linear')        
-plt.ylim(0, fs/2)          # show up to Nyquist
+plt.ylim(0, fs/2)          # Tot Nyquist
 plt.tight_layout()
 plt.show()
+
+    #######################
+    ### End of answer 6 ###
+    #######################
+    ###  Answer to q 7  ###
+    #######################
+
+df = freqs[1] - freqs[0] 
+
+lin_spec = 10**(PSL_matrix / 10.0) 
+OSPL_from_spec = 10.0 * np.log10(df * np.sum(lin_spec, axis=1))  # Formule 5.18-5.20
+
+# Plot op de resultaten van figure 2
+plt.figure()
+plt.plot(time_points, OSPL, 'b', label='OSPL from time domain (Q5)')
+plt.plot(time_centers, OSPL_from_spec, 'r--', label='OSPL from spectrum (Q7)')
+plt.xlabel('Time (s)')
+plt.ylabel('OSPL (dB)')
+plt.title('Figure 2: Instantaneous OSPL vs time')
+plt.legend()
+plt.tight_layout()
+plt.show()
+
+    #######################
+    ### End of answer 7 ###
+    #######################
