@@ -108,10 +108,9 @@ for i, start in enumerate(time_points):
     # print(start_idx, end_idx)
     chunk = sound_pressure[start_idx:end_idx] # metingen pakken van tijdstip start tot end
     if len(chunk) < nr_samples:
-        # zero-pad to chunk_samples
-        chunk = np.pad(chunk, (0, int(nr_samples) - len(chunk)), mode='constant')
+        chunk = np.pad(chunk, (0, int(nr_samples) - len(chunk)), mode='constant') # padding op einde voor chunk die niet meer exact uit komt
 
-    # compute PSD using periodogram with 'density' scaling (units Pa^2/Hz)
+    # compute PSD using periodogram, hann filter (ipv boxcar) toegepast voor betere resultaten
     freqs_chunk, Pxx = signal.periodogram(chunk, fs=fs, window='hann', nfft=nfft, scaling='density', detrend=False)
 
     PSL = 10.0 * np.log10(Pxx / (p_e0 ** 2) + 1e-30)  # Pxx (PSD) converteren naar PSL, epsilon = 1e-30
@@ -127,7 +126,7 @@ pcm = plt.pcolormesh(T, F, PSL_matrix.T, shading='gouraud', cmap='jet', vmin=-10
 plt.ylabel('Frequency (Hz)')
 plt.xlabel('Time (s)')
 cbar = plt.colorbar(pcm)
-cbar.set_label('PSL (dB re p_ref^2)')
+cbar.set_label('PSL (dB/Hz)')
 plt.title('Figure: Power Spectrum Level (time x frequency)')
 plt.yscale('linear')        
 plt.ylim(0, fs/2)          # Tot Nyquist
